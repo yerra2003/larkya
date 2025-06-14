@@ -1,0 +1,18 @@
+# .github/workflows/verify-signed-commits.yml
+name: Verify Signed Commits
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-signatures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for signed commits
+        run: |
+          COMMITS=$(git log --pretty=format:'%G?' ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+          echo "$COMMITS" | grep -v 'G' && {
+            echo "❌ Unsigned commits detected.";
+            exit 1;
+          } || echo "✅ All commits are signed.";
